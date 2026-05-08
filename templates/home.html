@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Asistente Inteligente de Preselección</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Fuente Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- CSS principal -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <a href="/" class="logo">ATS Inteligente</a>
+
+    <div class="nav-actions">
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#beneficios">Beneficios</a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary">Iniciar sesión</a>
+        <a href="{{ url_for('register') }}" class="btn btn-primary">Crear cuenta</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+    <div>
+        <div class="badge">Plataforma ATS con motor inteligente</div>
+
+        <h1>Preselecciona candidatos en minutos, no en días.</h1>
+
+        <p>
+            Un asistente inteligente para reclutadores que permite subir CVs,
+            analizar perfiles, detectar coincidencias relevantes y recomendar
+            candidatos según la descripción del cargo.
+        </p>
+
+        <div class="hero-actions">
+            <a href="{{ url_for('register') }}" class="btn btn-primary">
+                Comenzar ahora
+            </a>
+
+            <a href="#lobby" class="btn btn-secondary">
+                Ver recorrido
+            </a>
+        </div>
+    </div>
+
+    <div class="hero-panel">
+        <div class="mock-window">
+            <div class="mock-top">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+
+            <div class="mock-card">
+                <strong>Descripción del cargo</strong>
+                <div class="mock-line"></div>
+                <div class="mock-line short"></div>
+            </div>
+
+            <div class="mock-card">
+                <strong>Candidato recomendado</strong>
+                <div class="mock-line"></div>
+                <div class="mock-score"></div>
+            </div>
+
+            <div class="mock-card">
+                <strong>Explicación IA</strong>
+                <div class="mock-line"></div>
+                <div class="mock-line"></div>
+                <div class="mock-line short"></div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- LOBBY / ONBOARDING -->
+<section class="section" id="lobby">
+    <div class="section-title">
+        <h2>Un lobby diseñado para entender antes de operar</h2>
+        <p>
+            Antes de lanzar al usuario al dashboard, la plataforma explica el flujo:
+            subir CVs, describir el cargo, analizar resultados y tomar decisiones
+            con apoyo del motor inteligente.
+        </p>
+    </div>
+
+    <div class="grid-3">
+        <div class="card">
+            <div class="icon">🎬</div>
+            <h3>Onboarding rápido</h3>
+            <p>
+                Presenta al usuario el flujo principal del sistema:
+                carga de currículums, análisis automático y ranking de candidatos.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="icon">🧭</div>
+            <h3>Guía paso a paso</h3>
+            <p>
+                La plataforma orienta al reclutador para que sepa exactamente
+                qué hacer dentro del panel sin perder tiempo explorando.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="icon">💡</div>
+            <h3>Buenas prácticas</h3>
+            <p>
+                Recomienda redactar descripciones claras, incluir habilidades,
+                idiomas, experiencia, certificaciones y herramientas específicas.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section class="section" id="como-funciona">
+    <div class="section-title">
+        <h2>¿Cómo funciona?</h2>
+        <p>
+            El flujo está pensado para que cualquier reclutador pueda usarlo
+            sin conocimientos técnicos.
+        </p>
+    </div>
+
+    <div class="grid-3">
+        <div class="card">
+            <div class="icon">📄</div>
+            <h3>1. Sube los CVs</h3>
+            <p>
+                Carga múltiples archivos PDF. El sistema extrae automáticamente
+                el texto de cada currículum para su análisis.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="icon">🧠</div>
+            <h3>2. Describe el cargo</h3>
+            <p>
+                Escribe lo que necesitas en lenguaje natural:
+                habilidades, herramientas, idiomas, experiencia o certificaciones.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="icon">🏆</div>
+            <h3>3. Obtén ranking</h3>
+            <p>
+                El motor calcula un score, muestra coincidencias y genera una
+                explicación del candidato mejor alineado.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- BENEFICIOS -->
+<section class="section" id="beneficios">
+    <div class="section-title">
+        <h2>Beneficios para RR.HH.</h2>
+        <p>
+            La plataforma ayuda a reducir tareas repetitivas y mejora la
+            velocidad del proceso de preselección.
+        </p>
+    </div>
+
+    <div class="grid-3">
+        <div class="card">
+            <div class="icon">⚡</div>
+            <h3>Menos tiempo operativo</h3>
+            <p>
+                Evita revisar manualmente cientos de CVs. El sistema entrega
+                una primera lista priorizada para revisión humana.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="icon">🎯</div>
+            <h3>Mejor precisión inicial</h3>
+            <p>
+                Detecta habilidades, idiomas, tecnologías y coincidencias
+                relevantes según el perfil solicitado.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="icon">📊</div>
+            <h3>Resultados exportables</h3>
+            <p>
+                Genera reportes en Excel con ranking, score, coincidencias,
+                idiomas y experiencia detectada.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- BEST PRACTICES -->
+<section class="section">
+    <div class="section-title">
+        <h2>Buenas prácticas para mejores resultados</h2>
+        <p>
+            Mientras más clara sea la descripción del cargo, mejor será la
+            calidad del ranking generado.
+        </p>
+    </div>
+
+    <div class="grid-3">
+        <div class="card">
+            <div class="icon">✅</div>
+            <h3>Incluye habilidades técnicas</h3>
+            <p>
+                Ejemplo: Cisco, Python, Excel avanzado, AWS, soporte técnico,
+                fibra óptica, routing, switching o SQL.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="icon">🌍</div>
+            <h3>Agrega idiomas</h3>
+            <p>
+                Indica si necesitas inglés, francés, español u otro idioma,
+                además del nivel requerido si corresponde.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="icon">🎓</div>
+            <h3>Menciona certificaciones</h3>
+            <p>
+                Agrega certificados importantes como CCNA, AWS, Scrum,
+                títulos técnicos, diplomados o licencias profesionales.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="section">
+    <div class="section-title">
+        <h2>Convierte tu proceso de selección en un flujo inteligente</h2>
+        <p>
+            Crea una cuenta, sube tus CVs y empieza a analizar candidatos
+            con un sistema diseñado para preselección moderna.
+        </p>
+
+        <div class="hero-actions" style="justify-content:center;">
+            <a href="{{ url_for('register') }}" class="btn btn-primary">
+                Crear cuenta gratuita
+            </a>
+
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                Ya tengo cuenta
+            </a>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <p>
+        © 2026 Asistente Inteligente de Preselección —
+        Plataforma ATS SaaS desarrollada para automatizar procesos de RR.HH.
+    </p>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>
