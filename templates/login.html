@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar sesión | ATS Inteligente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="auth-body">
+
+    <section class="auth-left">
+        <a href="{{ url_for('home') }}" class="logo">ATS Inteligente</a>
+
+        <div style="margin-top:70px;">
+            <div class="badge">Acceso seguro para reclutadores</div>
+
+            <h1>Vuelve a tu panel de preselección.</h1>
+
+            <p>
+                Ingresa para continuar analizando currículums, revisar rankings,
+                exportar resultados y apoyarte en el asistente inteligente de selección.
+            </p>
+
+            <div class="hero-panel" style="margin-top:32px; max-width:520px;">
+                <div class="mock-window">
+                    <div class="mock-top">
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+
+                    <div class="mock-card">
+                        <strong>Panel ATS</strong>
+                        <div class="mock-line"></div>
+                        <div class="mock-line short"></div>
+                    </div>
+
+                    <div class="mock-card">
+                        <strong>Ranking inteligente</strong>
+                        <div class="mock-score"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <aside class="auth-box">
+        <h2>Iniciar sesión</h2>
+        <p style="color:var(--muted); line-height:1.6; margin-bottom:26px;">
+            Accede con tu usuario y contraseña para entrar al dashboard.
+        </p>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="card" style="background:#fee2e2; color:#991b1b; padding:14px; margin-bottom:18px;">
+                    {% for message in messages %}
+                        <div>{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label><strong>Usuario</strong></label>
+                <input class="form-control" name="username" placeholder="Ej: diego" required>
+            </div>
+
+            <div class="form-group">
+                <label><strong>Contraseña</strong></label>
+                <input class="form-control" name="password" type="password" placeholder="Ingresa tu contraseña" required>
+            </div>
+
+            <button class="btn btn-primary" type="submit" style="width:100%; margin-top:8px;">
+                Entrar al dashboard
+            </button>
+        </form>
+
+        <div style="margin-top:22px; text-align:center; color:var(--muted);">
+            ¿Aún no tienes cuenta?
+            <a href="{{ url_for('register') }}" style="color:var(--primary); font-weight:800;">
+                Crear cuenta
+            </a>
+        </div>
+
+        <div style="margin-top:14px; text-align:center;">
+            <a href="{{ url_for('home') }}" style="color:var(--muted); font-weight:700;">
+                ← Volver a la portada
+            </a>
+        </div>
+    </aside>
+
+</div>
+
+</body>
+</html>

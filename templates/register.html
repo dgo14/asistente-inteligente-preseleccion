@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear cuenta | ATS Inteligente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="auth-body">
+
+    <section class="auth-left">
+        <a href="{{ url_for('home') }}" class="logo">ATS Inteligente</a>
+
+        <div style="margin-top:70px;">
+            <div class="badge">Nueva plataforma de preselección</div>
+
+            <h1>Crea tu espacio de reclutamiento inteligente.</h1>
+
+            <p>
+                Registra una cuenta para subir CVs, analizar candidatos,
+                obtener rankings automáticos y exportar reportes profesionales.
+            </p>
+
+            <div class="grid-3" style="grid-template-columns:1fr; margin-top:30px; max-width:540px;">
+                <div class="card">
+                    <div class="icon">🔐</div>
+                    <h3>Cuenta protegida</h3>
+                    <p>Tu información queda asociada a tu usuario y cada reclutador trabaja con sus propios CVs.</p>
+                </div>
+
+                <div class="card">
+                    <div class="icon">📊</div>
+                    <h3>Dashboard ATS</h3>
+                    <p>Accede a un panel moderno con métricas, ranking, coincidencias y explicación inteligente.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <aside class="auth-box">
+        <h2>Crear cuenta</h2>
+        <p style="color:var(--muted); line-height:1.6; margin-bottom:26px;">
+            Completa los datos para entrar a la plataforma.
+        </p>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="card" style="background:#fee2e2; color:#991b1b; padding:14px; margin-bottom:18px;">
+                    {% for message in messages %}
+                        <div>{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label><strong>Usuario</strong></label>
+                <input class="form-control" name="username" placeholder="Ej: diego" required>
+            </div>
+
+            <div class="form-group">
+                <label><strong>Contraseña</strong></label>
+                <input class="form-control" name="password" type="password" placeholder="Crea una contraseña segura" required>
+            </div>
+
+            <button class="btn btn-primary" type="submit" style="width:100%; margin-top:8px;">
+                Crear cuenta y entrar
+            </button>
+        </form>
+
+        <div style="margin-top:22px; text-align:center; color:var(--muted);">
+            ¿Ya tienes cuenta?
+            <a href="{{ url_for('login') }}" style="color:var(--primary); font-weight:800;">
+                Iniciar sesión
+            </a>
+        </div>
+
+        <div style="margin-top:14px; text-align:center;">
+            <a href="{{ url_for('home') }}" style="color:var(--muted); font-weight:700;">
+                ← Volver a la portada
+            </a>
+        </div>
+    </aside>
+
+</div>
+
+</body>
+</html>
