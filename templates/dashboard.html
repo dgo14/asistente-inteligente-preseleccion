@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | ATS Inteligente</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <h2>ATS Inteligente</h2>
+
+        <div style="margin-top:30px;">
+            <a href="{{ url_for('dashboard') }}" class="sidebar-link active">📊 Dashboard</a>
+            <a href="#analisis" class="sidebar-link">🧠 Análisis IA</a>
+            <a href="#cvs" class="sidebar-link">📄 CVs guardados</a>
+            <a href="#ranking" class="sidebar-link">🏆 Ranking</a>
+            <a href="{{ url_for('export_excel') }}" class="sidebar-link">📥 Exportar Excel</a>
+            <a href="{{ url_for('logout') }}" class="sidebar-link">🚪 Cerrar sesión</a>
+        </div>
+
+        <div style="margin-top:40px; padding:18px; border-radius:18px; background:rgba(255,255,255,0.08);">
+            <strong>Usuario activo</strong>
+            <p style="color:#cbd5e1; margin-bottom:0;">
+                {{ current_user.username }}
+            </p>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <div>
+                <h1 style="margin:0; letter-spacing:-0.04em;">Panel de preselección</h1>
+                <p style="color:var(--muted); margin-top:8px;">
+                    Analiza CVs, detecta coincidencias y prioriza candidatos.
+                </p>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <a href="{{ url_for('home') }}" class="btn btn-secondary">Portada</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger">Salir</a>
+            </div>
+        </div>
+
+        <!-- KPIS -->
+        <section class="kpi-grid">
+            <div class="kpi">
+                <span>CVs cargados</span>
+                <strong>{{ total_cvs }}</strong>
+            </div>
+
+            <div class="kpi">
+                <span>Análisis realizados</span>
+                <strong>{{ total_analyses }}</strong>
+            </div>
+
+            <div class="kpi">
+                <span>Estado del motor</span>
+                <strong style="font-size:26px; color:var(--success);">Activo</strong>
+            </div>
+        </section>
+
+        <!-- UPLOAD -->
+        <section class="panel" id="cvs">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;">
+                <div>
+                    <h2 style="margin:0;">📄 Cargar currículums</h2>
+                    <p style="color:var(--muted); margin-bottom:0;">
+                        Sube uno o varios CVs en PDF para analizarlos dentro del sistema.
+                    </p>
+                </div>
+
+                {% if cvs %}
+                <a href="{{ url_for('delete_all') }}"
+                   class="btn btn-danger"
+                   onclick="return confirm('¿Seguro que deseas eliminar todos los CVs?');">
+                    Eliminar todos
+                </a>
+                {% endif %}
+            </div>
+
+            <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" style="margin-top:24px;">
+                <div class="upload-zone">
+                    <div style="font-size:42px;">☁️</div>
+                    <h3 id="file-label">Selecciona tus CVs en PDF</h3>
+                    <p style="color:var(--muted);">
+                        Puedes cargar múltiples archivos al mismo tiempo.
+                    </p>
+
+                    <input id="cvs" name="cvs" type="file" accept=".pdf" multiple required style="display:none;">
+
+                    <label for="cvs" class="btn btn-secondary" style="margin-right:10px;">
+                        Elegir archivos
+                    </label>
+
+                    <button type="submit" class="btn btn-primary">
+                        Subir CVs
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ANALISIS -->
+        <section class="panel" id="analisis">
+            <h2 style="margin-top:0;">🧠 Describe el cargo</h2>
+            <p style="color:var(--muted);">
+                Escribe la necesidad real del puesto. Puedes incluir habilidades, idiomas,
+                certificaciones, experiencia, herramientas o características personales.
+            </p>
+
+            <form method="POST">
+                <textarea
+                    class="form-control"
+                    name="job_description"
+                    placeholder="Ej: Busco técnico en redes con experiencia en Cisco, soporte de usuarios, configuración de routers, VLAN, inglés básico, responsabilidad y trabajo bajo presión..."
+                    required>{{ job_description }}</textarea>
+
+                <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+                    <button class="btn btn-primary" type="submit">
+                        Analizar candidatos
+                    </button>
+
+                    <a href="{{ url_for('export_excel') }}" class="btn btn-success">
+                        Exportar Excel
+                    </a>
+                </div>
+            </form>
+        </section>
+
+        <!-- RECOMENDADO -->
+        {% if recommended %}
+        <section class="panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;">
+                <div>
+                    <div class="badge">Candidato recomendado</div>
+                    <h2 style="margin:8px 0 0;">{{ recommended.name }}</h2>
+                    <p style="color:var(--muted);">
+                        Este candidato obtuvo el mayor score según la descripción del cargo.
+                    </p>
+                </div>
+
+                <div style="text-align:right;">
+                    <div style="font-size:46px; font-weight:900; color:var(--primary);">
+                        {{ recommended.score }}%
+                    </div>
+                    <span style="color:var(--muted); font-weight:700;">Score ATS</span>
+                </div>
+            </div>
+
+            <div class="progress" style="height:16px; margin-top:18px;">
+                <div class="progress-bar" style="width:{{ recommended.score }}%;"></div>
+            </div>
+
+            {% if recommended.matches %}
+            <div style="margin-top:18px;">
+                <strong>Coincidencias principales:</strong>
+                <div style="margin-top:10px;">
+                    {% for match in recommended.matches %}
+                        <span class="match">{{ match }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <!-- CHAT IA -->
+        {% if ai_summary %}
+        <section class="panel">
+            <h2 style="margin-top:0;">💬 Explicación del asistente</h2>
+            <p style="color:var(--muted);">
+                El sistema genera una explicación legible para apoyar la decisión del reclutador.
+            </p>
+
+            <div class="chat-box">
+                <div class="bubble user">
+                    Busco el mejor candidato según la descripción del cargo ingresada.
+                </div>
+
+                <div class="bubble ai">
+                    {{ ai_summary }}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- RANKING -->
+        {% if results %}
+        <section class="panel" id="ranking">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;">
+                <div>
+                    <h2 style="margin:0;">🏆 Ranking de candidatos</h2>
+                    <p style="color:var(--muted); margin-bottom:0;">
+                        Lista ordenada según coincidencia con el cargo.
+                    </p>
+                </div>
+
+                <a href="{{ url_for('export_excel') }}" class="btn btn-success">
+                    Descargar Excel
+                </a>
+            </div>
+
+            <div style="overflow-x:auto; margin-top:22px;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Ranking</th>
+                            <th>Candidato</th>
+                            <th>Score</th>
+                            <th>Coincidencias</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for r in results %}
+                        <tr>
+                            <td>
+                                <strong>#{{ loop.index }}</strong>
+                            </td>
+
+                            <td>
+                                <strong>{{ r.name }}</strong>
+                            </td>
+
+                            <td style="min-width:180px;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                    <span>{{ r.score }}%</span>
+                                </div>
+
+                                <div class="progress">
+                                    <div class="progress-bar" style="width:{{ r.score }}%;"></div>
+                                </div>
+                            </td>
+
+                            <td>
+                                {% if r.matches %}
+                                    {% for match in r.matches[:8] %}
+                                        <span class="match">{{ match }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span style="color:var(--muted);">Sin coincidencias fuertes</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <a href="{{ url_for('download', cv_id=r.id) }}" class="btn btn-secondary">
+                                        Descargar
+                                    </a>
+
+                                    <a href="{{ url_for('delete_cv', cv_id=r.id) }}"
+                                       class="btn btn-danger"
+                                       onclick="return confirm('¿Eliminar este CV?');">
+                                        Eliminar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- CVS GUARDADOS -->
+        <section class="panel">
+            <h2 style="margin-top:0;">📚 CVs guardados</h2>
+
+            {% if cvs %}
+                <div style="overflow-x:auto;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Archivo</th>
+                                <th>Fecha de subida</th>
+                                <th>Texto extraído</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for cv in cvs %}
+                            <tr>
+                                <td>
+                                    <strong>{{ cv.original_name }}</strong>
+                                </td>
+
+                                <td>
+                                    {{ cv.uploaded_at.strftime("%Y-%m-%d %H:%M") }}
+                                </td>
+
+                                <td>
+                                    {% if cv.extracted_text %}
+                                        <span class="match">Texto leído</span>
+                                    {% else %}
+                                        <span style="color:var(--danger); font-weight:700;">Sin texto</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                        <a href="{{ url_for('download', cv_id=cv.id) }}" class="btn btn-secondary">
+                                            Descargar
+                                        </a>
+
+                                        <a href="{{ url_for('delete_cv', cv_id=cv.id) }}"
+                                           class="btn btn-danger"
+                                           onclick="return confirm('¿Eliminar este CV?');">
+                                            Eliminar
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div style="padding:28px; border:1px dashed var(--border); border-radius:18px; text-align:center;">
+                    <div style="font-size:42px;">📭</div>
+                    <h3>No hay CVs cargados todavía</h3>
+                    <p style="color:var(--muted);">
+                        Sube tus primeros currículums para comenzar el análisis.
+                    </p>
+                </div>
+            {% endif %}
+        </section>
+
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>
