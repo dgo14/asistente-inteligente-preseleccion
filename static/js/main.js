@@ -1,17 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const fileInput = document.querySelector("#cvs");
-    const fileLabel = document.querySelector("#file-label");
+    const input = document.getElementById("cvs");
+    const label = document.getElementById("file-label");
 
-    if (fileInput && fileLabel) {
-        fileInput.addEventListener("change", () => {
-            const count = fileInput.files.length;
+    if (input && label) {
+        input.addEventListener("change", () => {
+            const count = input.files.length;
+
             if (count === 0) {
-                fileLabel.textContent = "Selecciona tus CVs en PDF";
+                label.innerText = "Selecciona tus CVs en PDF";
             } else if (count === 1) {
-                fileLabel.textContent = "1 archivo seleccionado";
+                label.innerText = input.files[0].name;
             } else {
-                fileLabel.textContent = `${count} archivos seleccionados`;
+                label.innerText = `${count} archivos PDF seleccionados`;
             }
         });
     }
+
+    const sidebarToggle = document.getElementById("sidebar-toggle");
+    const dashboardLayout = document.getElementById("dashboard-layout");
+
+    if (sidebarToggle && dashboardLayout) {
+        sidebarToggle.addEventListener("click", () => {
+            dashboardLayout.classList.toggle("sidebar-collapsed");
+        });
+    }
 });
+

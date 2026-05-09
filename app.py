@@ -173,10 +173,30 @@ def extract_pdf_text(path):
 
 
 def detect_experience_years(text):
-    text = normalize_text(text)
-    matches = re.findall(r"(\d{1,2})\s*(anos|año|años|years)", text)
-    years = [int(m[0]) for m in matches if int(m[0]) <= 40]
-    return max(years) if years else 0
+    """
+    Detecta años de experiencia SOLO cuando el texto habla explícitamente de experiencia laboral.
+    Evita confundir edad, fechas, teléfonos, RUT o años sueltos con experiencia.
+    """
+    text_norm = normalize_text(text)
+
+    patterns = [
+        r"(\d{1,2})\s*(anos|año|años|years)\s*(de)?\s*(experiencia|experiencia laboral|experiencia profesional)",
+        r"(experiencia|experiencia laboral|experiencia profesional)\s*(de)?\s*(\d{1,2})\s*(anos|año|años|years)",
+        r"mas de\s*(\d{1,2})\s*(anos|año|años|years)\s*(de)?\s*(experiencia|experiencia laboral|experiencia profesional)",
+    ]
+
+    detected = []
+
+    for pattern in patterns:
+        matches = re.findall(pattern, text_norm)
+        for match in matches:
+            for item in match:
+                if str(item).isdigit():
+                    value = int(item)
+                    if 0 < value <= 40:
+                        detected.append(value)
+
+    return max(detected) if detected else 0
 
 
 def detect_languages(text):
@@ -231,8 +251,9 @@ def calculate_candidate_score(job_description, cv_text):
 def generate_ai_style_summary(candidate_name, score, matches, metadata):
     if not matches:
         return (
-            f"El candidato {candidate_name} quedó primero por su comparación general con el perfil solicitado, "
-            f"aunque las coincidencias explícitas detectadas fueron limitadas. Conviene revisar manualmente su CV."
+            f"El perfil {candidate_name} aparece como el mejor dentro de los CVs disponibles, "
+            f"pero no se detectaron coincidencias fuertes y explícitas con la descripción ingresada. "
+            f"Se recomienda revisar manualmente el documento antes de avanzar."
         )
 
     top_matches = ", ".join(matches[:8])
@@ -240,25 +261,32 @@ def generate_ai_style_summary(candidate_name, score, matches, metadata):
     langs = metadata.get("languages", [])
 
     summary = (
-        f"El candidato {candidate_name} quedó primero porque presenta una coincidencia fuerte con el perfil solicitado. "
-        f"Las señales más relevantes encontradas fueron: {top_matches}. "
+        f"El perfil {candidate_name} destaca frente a los demás porque presenta coincidencias relevantes "
+        f"con los criterios solicitados. Las principales señales detectadas fueron: {top_matches}. "
     )
 
     if years > 0:
-        summary += f"Además, se detectan aproximadamente {years} año(s) de experiencia mencionada en el CV. "
+        summary += (
+            f"Además, el CV menciona explícitamente alrededor de {years} año(s) de experiencia laboral, "
+            f"lo que refuerza su compatibilidad con el cargo. "
+        )
+    else:
+        summary += (
+            "No se detectó una frase explícita que indique años totales de experiencia laboral, "
+            "por lo tanto este dato debe validarse manualmente durante la revisión o entrevista. "
+        )
 
     if langs:
         summary += f"También se identificaron idiomas relevantes: {', '.join(langs)}. "
 
     if score >= 75:
-        summary += "En términos prácticos, es un perfil muy alineado para avanzar a entrevista."
+        summary += "En conclusión, es un candidato altamente alineado para avanzar a una siguiente etapa."
     elif score >= 50:
-        summary += "Es un perfil interesante, aunque sería recomendable validar experiencia específica en entrevista."
+        summary += "En conclusión, es un candidato interesante, pero requiere validación humana antes de avanzar."
     else:
-        summary += "Aunque quedó primero, el puntaje sugiere que el ajuste debe revisarse con mayor detalle."
+        summary += "En conclusión, aunque lidera el ranking actual, su compatibilidad todavía es parcial."
 
     return summary
-
 
 # ============================================================
 # UTILIDADES

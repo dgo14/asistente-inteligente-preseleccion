@@ -11,10 +11,11 @@
 
 <body>
 
-<div class="dashboard">
+<div class="dashboard" id="dashboard-layout">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
+        <button class="sidebar-toggle" id="sidebar-toggle" type="button">☰</button>
+
         <h2>ATS Inteligente</h2>
 
         <div style="margin-top:30px;">
@@ -26,18 +27,14 @@
             <a href="{{ url_for('logout') }}" class="sidebar-link">🚪 Cerrar sesión</a>
         </div>
 
-        <div style="margin-top:40px; padding:18px; border-radius:18px; background:rgba(255,255,255,0.08);">
+        <div class="user-card">
             <strong>Usuario activo</strong>
-            <p style="color:#cbd5e1; margin-bottom:0;">
-                {{ current_user.username }}
-            </p>
+            <p>{{ current_user.username }}</p>
         </div>
     </aside>
 
-    <!-- MAIN -->
     <main class="main">
 
-        <!-- TOPBAR -->
         <div class="topbar">
             <div>
                 <h1 style="margin:0; letter-spacing:-0.04em;">Panel de preselección</h1>
@@ -52,7 +49,6 @@
             </div>
         </div>
 
-        <!-- KPIS -->
         <section class="kpi-grid">
             <div class="kpi">
                 <span>CVs cargados</span>
@@ -70,7 +66,6 @@
             </div>
         </section>
 
-        <!-- UPLOAD -->
         <section class="panel" id="cvs">
             <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;">
                 <div>
@@ -97,20 +92,15 @@
                         Puedes cargar múltiples archivos al mismo tiempo.
                     </p>
 
-                    <input id="cvs" name="cvs" type="file" accept=".pdf" multiple required style="display:none;">
+                    <input id="cvs" name="cvs" type="file" accept=".pdf" multiple required class="nice-file-input">
 
-                    <label for="cvs" class="btn btn-secondary" style="margin-right:10px;">
-                        Elegir archivos
-                    </label>
-
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" style="margin-top:18px;">
                         Subir CVs
                     </button>
                 </div>
             </form>
         </section>
 
-        <!-- ANALISIS -->
         <section class="panel" id="analisis">
             <h2 style="margin-top:0;">🧠 Describe el cargo</h2>
             <p style="color:var(--muted);">
@@ -137,7 +127,6 @@
             </form>
         </section>
 
-        <!-- RECOMENDADO -->
         {% if recommended %}
         <section class="panel">
             <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;">
@@ -174,27 +163,29 @@
         </section>
         {% endif %}
 
-        <!-- CHAT IA -->
         {% if ai_summary %}
         <section class="panel">
-            <h2 style="margin-top:0;">💬 Explicación del asistente</h2>
+            <h2 style="margin-top:0;">🧠 Análisis inteligente del candidato</h2>
             <p style="color:var(--muted);">
-                El sistema genera una explicación legible para apoyar la decisión del reclutador.
+                Interpretación generada a partir de las coincidencias reales detectadas en el CV.
             </p>
 
-            <div class="chat-box">
-                <div class="bubble user">
-                    Busco el mejor candidato según la descripción del cargo ingresada.
+            <div class="ai-insight-card">
+                <div class="ai-insight-header">
+                    <div class="ai-avatar">IA</div>
+                    <div>
+                        <strong>Evaluación del perfil recomendado</strong>
+                        <p>Resumen técnico y criterio de preselección</p>
+                    </div>
                 </div>
 
-                <div class="bubble ai">
+                <div class="ai-insight-content">
                     {{ ai_summary }}
                 </div>
             </div>
         </section>
         {% endif %}
 
-        <!-- RANKING -->
         {% if results %}
         <section class="panel" id="ranking">
             <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;">
@@ -225,13 +216,9 @@
                     <tbody>
                         {% for r in results %}
                         <tr>
-                            <td>
-                                <strong>#{{ loop.index }}</strong>
-                            </td>
+                            <td><strong>#{{ loop.index }}</strong></td>
 
-                            <td>
-                                <strong>{{ r.name }}</strong>
-                            </td>
+                            <td><strong>{{ r.name }}</strong></td>
 
                             <td style="min-width:180px;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
@@ -274,7 +261,6 @@
         </section>
         {% endif %}
 
-        <!-- CVS GUARDADOS -->
         <section class="panel">
             <h2 style="margin-top:0;">📚 CVs guardados</h2>
 
@@ -293,13 +279,9 @@
                         <tbody>
                             {% for cv in cvs %}
                             <tr>
-                                <td>
-                                    <strong>{{ cv.original_name }}</strong>
-                                </td>
+                                <td><strong>{{ cv.original_name }}</strong></td>
 
-                                <td>
-                                    {{ cv.uploaded_at.strftime("%Y-%m-%d %H:%M") }}
-                                </td>
+                                <td>{{ cv.uploaded_at.strftime("%Y-%m-%d %H:%M") }}</td>
 
                                 <td>
                                     {% if cv.extracted_text %}
