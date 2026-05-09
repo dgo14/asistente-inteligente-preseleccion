@@ -5,91 +5,318 @@
     <title>Iniciar sesión | ATS Inteligente</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, system-ui, sans-serif;
+            background: #f4f7fb;
+            color: #0f172a;
+        }
+
+        .auth-layout {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+        }
+
+        .auth-visual {
+            padding: 70px 8%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: linear-gradient(135deg, #eff6ff, #f8fafc);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 950;
+            margin-bottom: 70px;
+        }
+
+        .badge {
+            display: inline-block;
+            width: fit-content;
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-weight: 800;
+            margin-bottom: 22px;
+        }
+
+        h1 {
+            font-size: clamp(46px, 6vw, 82px);
+            line-height: 1;
+            margin: 0 0 26px;
+            font-weight: 950;
+            letter-spacing: -0.06em;
+            max-width: 850px;
+        }
+
+        .subtitle {
+            color: #475569;
+            font-size: 21px;
+            line-height: 1.7;
+            max-width: 760px;
+        }
+
+        .preview-card {
+            margin-top: 42px;
+            max-width: 540px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 30px;
+            padding: 24px;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.10);
+        }
+
+        .mock-window {
+            background: #0f172a;
+            border-radius: 24px;
+            padding: 22px;
+            color: white;
+        }
+
+        .mock-dots {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .mock-dots span {
+            width: 11px;
+            height: 11px;
+            background: #64748b;
+            border-radius: 50%;
+        }
+
+        .mock-block {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+
+        .line {
+            height: 10px;
+            border-radius: 999px;
+            background: #475569;
+            margin-top: 12px;
+        }
+
+        .line.short {
+            width: 60%;
+        }
+
+        .line.green {
+            background: linear-gradient(90deg, #22c55e 78%, #475569 78%);
+        }
+
+        .auth-form-side {
+            background: white;
+            border-left: 1px solid #e5e7eb;
+            padding: 70px 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 430px;
+            margin: auto;
+        }
+
+        .auth-card h2 {
+            font-size: 36px;
+            margin: 0 0 14px;
+            letter-spacing: -0.04em;
+        }
+
+        .auth-card p {
+            color: #64748b;
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 850;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            border: 1px solid #dbe2ea;
+            border-radius: 16px;
+            padding: 15px 16px;
+            font-size: 15px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.12);
+        }
+
+        .btn {
+            width: 100%;
+            border: none;
+            border-radius: 16px;
+            padding: 15px 20px;
+            font-weight: 900;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 24px;
+            color: #64748b;
+        }
+
+        .links a {
+            color: #2563eb;
+            font-weight: 900;
+            text-decoration: none;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 16px;
+            color: #64748b;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .flash {
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 18px;
+            font-weight: 700;
+        }
+
+        @media(max-width: 950px) {
+            .auth-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-form-side {
+                border-left: none;
+            }
+
+            .auth-visual {
+                padding: 45px 6%;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="auth-body">
+<div class="auth-layout">
 
-    <section class="auth-left">
-        <a href="{{ url_for('home') }}" class="logo">ATS Inteligente</a>
+    <section class="auth-visual">
+        <div class="logo">ATS Inteligente</div>
 
-        <div style="margin-top:70px;">
-            <div class="badge">Acceso seguro para reclutadores</div>
+        <div class="badge">Acceso seguro para reclutadores</div>
 
-            <h1>Vuelve a tu panel de preselección.</h1>
+        <h1>Vuelve a tu centro de preselección inteligente.</h1>
 
-            <p>
-                Ingresa para continuar analizando currículums, revisar rankings,
-                exportar resultados y apoyarte en el asistente inteligente de selección.
-            </p>
+        <p class="subtitle">
+            Ingresa para continuar analizando currículums, revisar rankings,
+            exportar resultados profesionales y tomar decisiones con apoyo del motor ATS.
+        </p>
 
-            <div class="hero-panel" style="margin-top:32px; max-width:520px;">
-                <div class="mock-window">
-                    <div class="mock-top">
-                        <span class="dot"></span>
-                        <span class="dot"></span>
-                        <span class="dot"></span>
-                    </div>
+        <div class="preview-card">
+            <div class="mock-window">
+                <div class="mock-dots">
+                    <span></span><span></span><span></span>
+                </div>
 
-                    <div class="mock-card">
-                        <strong>Panel ATS</strong>
-                        <div class="mock-line"></div>
-                        <div class="mock-line short"></div>
-                    </div>
+                <div class="mock-block">
+                    <strong>Panel ATS</strong>
+                    <div class="line"></div>
+                    <div class="line short"></div>
+                </div>
 
-                    <div class="mock-card">
-                        <strong>Ranking inteligente</strong>
-                        <div class="mock-score"></div>
-                    </div>
+                <div class="mock-block">
+                    <strong>Ranking inteligente</strong>
+                    <div class="line green"></div>
+                </div>
+
+                <div class="mock-block">
+                    <strong>Análisis del candidato</strong>
+                    <div class="line"></div>
+                    <div class="line short"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <aside class="auth-box">
-        <h2>Iniciar sesión</h2>
-        <p style="color:var(--muted); line-height:1.6; margin-bottom:26px;">
-            Accede con tu usuario y contraseña para entrar al dashboard.
-        </p>
+    <aside class="auth-form-side">
+        <div class="auth-card">
+            <h2>Iniciar sesión</h2>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="card" style="background:#fee2e2; color:#991b1b; padding:14px; margin-bottom:18px;">
-                    {% for message in messages %}
-                        <div>{{ message }}</div>
-                    {% endfor %}
+            <p>
+                Accede con tu usuario y contraseña para entrar al dashboard de análisis.
+            </p>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash">
+                        {% for message in messages %}
+                            <div>{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label>Usuario</label>
+                    <input class="form-control" name="username" placeholder="Ej: diego" required>
                 </div>
-            {% endif %}
-        {% endwith %}
 
-        <form method="POST">
-            <div class="form-group">
-                <label><strong>Usuario</strong></label>
-                <input class="form-control" name="username" placeholder="Ej: diego" required>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input class="form-control" name="password" type="password" placeholder="Ingresa tu contraseña" required>
+                </div>
+
+                <button class="btn btn-primary" type="submit">
+                    Entrar al dashboard
+                </button>
+            </form>
+
+            <div class="links">
+                ¿Aún no tienes cuenta?
+                <a href="{{ url_for('register') }}">Crear cuenta</a>
             </div>
 
-            <div class="form-group">
-                <label><strong>Contraseña</strong></label>
-                <input class="form-control" name="password" type="password" placeholder="Ingresa tu contraseña" required>
-            </div>
-
-            <button class="btn btn-primary" type="submit" style="width:100%; margin-top:8px;">
-                Entrar al dashboard
-            </button>
-        </form>
-
-        <div style="margin-top:22px; text-align:center; color:var(--muted);">
-            ¿Aún no tienes cuenta?
-            <a href="{{ url_for('register') }}" style="color:var(--primary); font-weight:800;">
-                Crear cuenta
-            </a>
-        </div>
-
-        <div style="margin-top:14px; text-align:center;">
-            <a href="{{ url_for('home') }}" style="color:var(--muted); font-weight:700;">
+            <a href="{{ url_for('home') }}" class="back-link">
                 ← Volver a la portada
             </a>
         </div>
