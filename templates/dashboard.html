@@ -5,49 +5,593 @@
     <title>Dashboard | ATS Inteligente</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e5e7eb;
+            --sidebar: #0f172a;
+            --primary: #2563eb;
+            --primary-soft: #eef2ff;
+            --success: #16a34a;
+            --success-soft: #dcfce7;
+            --danger: #dc2626;
+            --danger-soft: #fee2e2;
+            --shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: Inter, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        a { text-decoration: none; }
+
+        .dashboard {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            transition: grid-template-columns 0.25s ease;
+        }
+
+        .dashboard.collapsed {
+            grid-template-columns: 0px 1fr;
+        }
+
+        .sidebar {
+            background: var(--sidebar);
+            color: white;
+            padding: 22px 18px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: visible;
+            transition: all 0.25s ease;
+            z-index: 100;
+        }
+
+        .dashboard.collapsed .sidebar {
+            padding: 0;
+            width: 0;
+        }
+
+        .sidebar-inner {
+            width: 214px;
+            transition: opacity 0.2s ease;
+        }
+
+        .dashboard.collapsed .sidebar-inner {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .brand {
+            font-size: 18px;
+            font-weight: 950;
+            white-space: nowrap;
+        }
+
+        .sidebar-toggle {
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 0 14px 14px 0;
+            background: #0f172a;
+            color: white;
+            cursor: pointer;
+            font-size: 22px;
+            position: fixed;
+            left: 250px;
+            top: 145px;
+            z-index: 300;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.25);
+            transition: all 0.25s ease;
+        }
+
+        .dashboard.collapsed .sidebar-toggle {
+            left: 0;
+        }
+
+        .sidebar-toggle:hover {
+            background: #1e293b;
+            transform: translateY(-1px);
+        }
+
+        .nav-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 44px;
+            padding: 11px 13px;
+            border-radius: 14px;
+            color: #cbd5e1;
+            font-weight: 750;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: rgba(255,255,255,0.10);
+            color: white;
+            transform: translateX(2px);
+        }
+
+        .nav-icon {
+            width: 22px;
+            text-align: center;
+            font-size: 17px;
+            flex: 0 0 auto;
+        }
+
+        .user-card {
+            margin-top: 34px;
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .user-card strong {
+            display: block;
+            font-size: 13px;
+            color: #ffffff;
+        }
+
+        .user-card p {
+            margin: 8px 0 0;
+            color: #cbd5e1;
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .main {
+            padding: 30px 36px;
+            min-width: 0;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(244, 247, 251, 0.86);
+            backdrop-filter: blur(14px);
+            padding: 18px 0 22px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .topbar h1 {
+            font-size: 31px;
+            margin: 0;
+            letter-spacing: -0.045em;
+            font-weight: 950;
+        }
+
+        .topbar p {
+            color: var(--muted);
+            font-size: 15px;
+            margin: 8px 0 0;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-weight: 900;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.22);
+        }
+
+        .btn-secondary {
+            background: var(--primary-soft);
+            color: #1e40af;
+        }
+
+        .btn-danger {
+            background: var(--danger-soft);
+            color: var(--danger);
+        }
+
+        .btn-success {
+            background: var(--success-soft);
+            color: #166534;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .kpi {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 21px;
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+        }
+
+        .kpi:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
+        }
+
+        .kpi span {
+            color: var(--muted);
+            font-weight: 850;
+            font-size: 13px;
+        }
+
+        .kpi strong {
+            display: block;
+            margin-top: 10px;
+            font-size: 32px;
+            letter-spacing: -0.045em;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 26px;
+            padding: 24px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+        }
+
+        .panel:hover {
+            box-shadow: 0 22px 55px rgba(15, 23, 42, 0.075);
+        }
+
+        .panel h2 {
+            font-size: 23px;
+            margin: 0 0 12px;
+            letter-spacing: -0.035em;
+        }
+
+        .panel p {
+            color: var(--muted);
+            line-height: 1.65;
+            margin-top: 0;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .upload-zone {
+            border: 2px dashed #bfdbfe;
+            background: linear-gradient(135deg, #f8fbff, #ffffff);
+            border-radius: 24px;
+            padding: 28px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: #f8fbff;
+        }
+
+        .nice-file-input {
+            width: 100%;
+            max-width: 760px;
+            background: white;
+            border: 1px solid #dbe2ea;
+            border-radius: 16px;
+            padding: 13px;
+            font-weight: 800;
+            color: #334155;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(15,23,42,0.05);
+        }
+
+        .nice-file-input::file-selector-button {
+            border: none;
+            background: var(--primary-soft);
+            color: #1e3a8a;
+            padding: 11px 17px;
+            border-radius: 13px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-right: 16px;
+        }
+
+        .form-control {
+            width: 100%;
+            border: 1px solid #dbe2ea;
+            border-radius: 18px;
+            padding: 16px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        textarea.form-control {
+            min-height: 145px;
+            resize: vertical;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.12);
+        }
+
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-weight: 900;
+            font-size: 13px;
+        }
+
+        .progress {
+            height: 11px;
+            background: #e5e7eb;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2563eb, #22c55e);
+            border-radius: 999px;
+        }
+
+        .match {
+            display: inline-block;
+            background: var(--primary-soft);
+            color: #1e3a8a;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-weight: 850;
+            font-size: 12px;
+            margin: 3px;
+        }
+
+        .ai-insight-card {
+            border: 1px solid #dbeafe;
+            background: linear-gradient(135deg, #f8fbff, #ffffff);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 18px 45px rgba(37,99,235,0.08);
+        }
+
+        .ai-insight-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .ai-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 17px;
+            background: linear-gradient(135deg, #2563eb, #22c55e);
+            color: white;
+            font-weight: 950;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-insight-content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #1f2937;
+        }
+
+        .table-wrap { overflow-x: auto; }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 780px;
+        }
+
+        .table th {
+            text-align: left;
+            color: var(--muted);
+            padding: 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .table td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .empty-box {
+            padding: 30px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 22px;
+            text-align: center;
+            background: #f8fafc;
+        }
+
+        @media(max-width: 1050px) {
+            .dashboard,
+            .dashboard.collapsed {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                height: auto;
+                width: 100%;
+                padding: 18px;
+            }
+
+            .dashboard.collapsed .sidebar {
+                width: 100%;
+                padding: 18px;
+            }
+
+            .sidebar-inner,
+            .dashboard.collapsed .sidebar-inner {
+                width: 100%;
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .sidebar-toggle,
+            .dashboard.collapsed .sidebar-toggle {
+                position: static;
+                border-radius: 14px;
+            }
+
+            .nav-group {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                position: relative;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .main {
+                padding: 22px;
+            }
+        }
+
+        @media(max-width: 620px) {
+            .nav-group { grid-template-columns: 1fr; }
+            .topbar h1 { font-size: 26px; }
+            .panel { padding: 20px; }
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="dashboard" id="dashboard-layout">
 
-    <aside class="sidebar" id="sidebar">
-        <button class="sidebar-toggle" id="sidebar-toggle" type="button">☰</button>
+    <aside class="sidebar">
+        <button class="sidebar-toggle" id="sidebar-toggle" type="button" title="Abrir o cerrar menú">
+            ☰
+        </button>
 
-        <h2>ATS Inteligente</h2>
+        <div class="sidebar-inner">
+            <div class="sidebar-header">
+                <div class="brand">ATS Inteligente</div>
+            </div>
 
-        <div style="margin-top:30px;">
-            <a href="{{ url_for('dashboard') }}" class="sidebar-link active">📊 Dashboard</a>
-            <a href="#analisis" class="sidebar-link">🧠 Análisis IA</a>
-            <a href="#cvs" class="sidebar-link">📄 CVs guardados</a>
-            <a href="#ranking" class="sidebar-link">🏆 Ranking</a>
-            <a href="{{ url_for('export_excel') }}" class="sidebar-link">📥 Exportar Excel</a>
-            <a href="{{ url_for('logout') }}" class="sidebar-link">🚪 Cerrar sesión</a>
-        </div>
+            <nav class="nav-group">
+                <a href="{{ url_for('dashboard') }}" class="sidebar-link active">
+                    <span class="nav-icon">▣</span>
+                    <span>Dashboard</span>
+                </a>
 
-        <div class="user-card">
-            <strong>Usuario activo</strong>
-            <p>{{ current_user.username }}</p>
+                <a href="#upload" class="sidebar-link">
+                    <span class="nav-icon">↑</span>
+                    <span>Cargar CVs</span>
+                </a>
+
+                <a href="#analisis" class="sidebar-link">
+                    <span class="nav-icon">◇</span>
+                    <span>Análisis IA</span>
+                </a>
+
+                <a href="#ranking" class="sidebar-link">
+                    <span class="nav-icon">★</span>
+                    <span>Ranking</span>
+                </a>
+
+                <a href="#guardados" class="sidebar-link">
+                    <span class="nav-icon">☷</span>
+                    <span>CVs guardados</span>
+                </a>
+
+                <a href="{{ url_for('export_excel') }}" class="sidebar-link">
+                    <span class="nav-icon">⇩</span>
+                    <span>Exportar Excel</span>
+                </a>
+
+                <a href="{{ url_for('logout') }}" class="sidebar-link">
+                    <span class="nav-icon">↪</span>
+                    <span>Cerrar sesión</span>
+                </a>
+            </nav>
+
+            <div class="user-card">
+                <strong>Usuario activo</strong>
+                <p>{{ current_user.username }}</p>
+            </div>
         </div>
     </aside>
 
     <main class="main">
 
-        <div class="topbar">
+        <header class="topbar">
             <div>
-                <h1 style="margin:0; letter-spacing:-0.04em;">Panel de preselección</h1>
-                <p style="color:var(--muted); margin-top:8px;">
-                    Analiza CVs, detecta coincidencias y prioriza candidatos.
-                </p>
+                <h1>Panel de preselección</h1>
+                <p>Analiza CVs, detecta coincidencias y prioriza candidatos desde un flujo inteligente.</p>
             </div>
 
-            <div style="display:flex; gap:10px;">
+            <div class="top-actions">
                 <a href="{{ url_for('home') }}" class="btn btn-secondary">Portada</a>
                 <a href="{{ url_for('logout') }}" class="btn btn-danger">Salir</a>
             </div>
-        </div>
+        </header>
 
         <section class="kpi-grid">
             <div class="kpi">
@@ -66,33 +610,28 @@
             </div>
         </section>
 
-        <section class="panel" id="cvs">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;">
+        <section class="panel" id="upload">
+            <div class="section-head">
                 <div>
-                    <h2 style="margin:0;">📄 Cargar currículums</h2>
-                    <p style="color:var(--muted); margin-bottom:0;">
-                        Sube uno o varios CVs en PDF para analizarlos dentro del sistema.
-                    </p>
+                    <h2>Cargar currículums</h2>
+                    <p>Sube uno o varios CVs en PDF para analizarlos dentro del sistema.</p>
                 </div>
 
                 {% if cvs %}
-                <a href="{{ url_for('delete_all') }}"
-                   class="btn btn-danger"
-                   onclick="return confirm('¿Seguro que deseas eliminar todos los CVs?');">
+                <a href="{{ url_for('delete_all') }}" class="btn btn-danger" onclick="return confirm('¿Seguro que deseas eliminar todos los CVs?');">
                     Eliminar todos
                 </a>
                 {% endif %}
             </div>
 
-            <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" style="margin-top:24px;">
+            <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
                 <div class="upload-zone">
-                    <div style="font-size:42px;">☁️</div>
-                    <h3 id="file-label">Selecciona tus CVs en PDF</h3>
-                    <p style="color:var(--muted);">
-                        Puedes cargar múltiples archivos al mismo tiempo.
-                    </p>
+                    <h3 id="file-label" style="font-size:22px; margin-top:0;">Selecciona tus CVs en PDF</h3>
+                    <p>Puedes cargar múltiples archivos al mismo tiempo.</p>
 
                     <input id="cvs" name="cvs" type="file" accept=".pdf" multiple required class="nice-file-input">
+
+                    <br>
 
                     <button type="submit" class="btn btn-primary" style="margin-top:18px;">
                         Subir CVs
@@ -102,10 +641,10 @@
         </section>
 
         <section class="panel" id="analisis">
-            <h2 style="margin-top:0;">🧠 Describe el cargo</h2>
-            <p style="color:var(--muted);">
-                Escribe la necesidad real del puesto. Puedes incluir habilidades, idiomas,
-                certificaciones, experiencia, herramientas o características personales.
+            <h2>Describe el cargo</h2>
+            <p>
+                Escribe la necesidad real del puesto. Incluye habilidades, idiomas,
+                certificaciones, experiencia, herramientas o características relevantes.
             </p>
 
             <form method="POST">
@@ -116,37 +655,30 @@
                     required>{{ job_description }}</textarea>
 
                 <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
-                    <button class="btn btn-primary" type="submit">
-                        Analizar candidatos
-                    </button>
-
-                    <a href="{{ url_for('export_excel') }}" class="btn btn-success">
-                        Exportar Excel
-                    </a>
+                    <button class="btn btn-primary" type="submit">Analizar candidatos</button>
+                    <a href="{{ url_for('export_excel') }}" class="btn btn-success">Exportar Excel</a>
                 </div>
             </form>
         </section>
 
         {% if recommended %}
         <section class="panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;">
+            <div class="section-head">
                 <div>
-                    <div class="badge">Candidato recomendado</div>
-                    <h2 style="margin:8px 0 0;">{{ recommended.name }}</h2>
-                    <p style="color:var(--muted);">
-                        Este candidato obtuvo el mayor score según la descripción del cargo.
-                    </p>
+                    <span class="badge">Candidato recomendado</span>
+                    <h2 style="margin-top:14px;">{{ recommended.name }}</h2>
+                    <p>Este candidato obtuvo el mayor score según la descripción del cargo.</p>
                 </div>
 
                 <div style="text-align:right;">
-                    <div style="font-size:46px; font-weight:900; color:var(--primary);">
+                    <div style="font-size:46px; font-weight:950; color:var(--primary);">
                         {{ recommended.score }}%
                     </div>
-                    <span style="color:var(--muted); font-weight:700;">Score ATS</span>
+                    <strong style="color:var(--muted);">Score ATS</strong>
                 </div>
             </div>
 
-            <div class="progress" style="height:16px; margin-top:18px;">
+            <div class="progress" style="height:15px; margin-top:18px;">
                 <div class="progress-bar" style="width:{{ recommended.score }}%;"></div>
             </div>
 
@@ -165,17 +697,15 @@
 
         {% if ai_summary %}
         <section class="panel">
-            <h2 style="margin-top:0;">🧠 Análisis inteligente del candidato</h2>
-            <p style="color:var(--muted);">
-                Interpretación generada a partir de las coincidencias reales detectadas en el CV.
-            </p>
+            <h2>Análisis inteligente del candidato</h2>
+            <p>Interpretación generada a partir de coincidencias reales detectadas en el CV.</p>
 
             <div class="ai-insight-card">
                 <div class="ai-insight-header">
                     <div class="ai-avatar">IA</div>
                     <div>
                         <strong>Evaluación del perfil recomendado</strong>
-                        <p>Resumen técnico y criterio de preselección</p>
+                        <p style="margin:4px 0 0; color:var(--muted);">Resumen técnico y criterio de preselección</p>
                     </div>
                 </div>
 
@@ -188,20 +718,16 @@
 
         {% if results %}
         <section class="panel" id="ranking">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;">
+            <div class="section-head">
                 <div>
-                    <h2 style="margin:0;">🏆 Ranking de candidatos</h2>
-                    <p style="color:var(--muted); margin-bottom:0;">
-                        Lista ordenada según coincidencia con el cargo.
-                    </p>
+                    <h2>Ranking de candidatos</h2>
+                    <p>Lista ordenada según coincidencia con el cargo.</p>
                 </div>
 
-                <a href="{{ url_for('export_excel') }}" class="btn btn-success">
-                    Descargar Excel
-                </a>
+                <a href="{{ url_for('export_excel') }}" class="btn btn-success">Descargar Excel</a>
             </div>
 
-            <div style="overflow-x:auto; margin-top:22px;">
+            <div class="table-wrap">
                 <table class="table">
                     <thead>
                         <tr>
@@ -217,15 +743,11 @@
                         {% for r in results %}
                         <tr>
                             <td><strong>#{{ loop.index }}</strong></td>
-
                             <td><strong>{{ r.name }}</strong></td>
 
-                            <td style="min-width:180px;">
-                                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                    <span>{{ r.score }}%</span>
-                                </div>
-
-                                <div class="progress">
+                            <td style="min-width:190px;">
+                                <strong>{{ r.score }}%</strong>
+                                <div class="progress" style="margin-top:8px;">
                                     <div class="progress-bar" style="width:{{ r.score }}%;"></div>
                                 </div>
                             </td>
@@ -242,13 +764,8 @@
 
                             <td>
                                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                                    <a href="{{ url_for('download', cv_id=r.id) }}" class="btn btn-secondary">
-                                        Descargar
-                                    </a>
-
-                                    <a href="{{ url_for('delete_cv', cv_id=r.id) }}"
-                                       class="btn btn-danger"
-                                       onclick="return confirm('¿Eliminar este CV?');">
+                                    <a href="{{ url_for('download', cv_id=r.id) }}" class="btn btn-secondary">Descargar</a>
+                                    <a href="{{ url_for('delete_cv', cv_id=r.id) }}" class="btn btn-danger" onclick="return confirm('¿Eliminar este CV?');">
                                         Eliminar
                                     </a>
                                 </div>
@@ -256,74 +773,101 @@
                         </tr>
                         {% endfor %}
                     </tbody>
+
                 </table>
             </div>
         </section>
         {% endif %}
 
-        <section class="panel">
-            <h2 style="margin-top:0;">📚 CVs guardados</h2>
+        <section class="panel" id="guardados">
+            <h2>CVs guardados</h2>
 
             {% if cvs %}
-                <div style="overflow-x:auto;">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Archivo</th>
-                                <th>Fecha de subida</th>
-                                <th>Texto extraído</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Archivo</th>
+                            <th>Fecha de subida</th>
+                            <th>Texto extraído</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
 
-                        <tbody>
-                            {% for cv in cvs %}
-                            <tr>
-                                <td><strong>{{ cv.original_name }}</strong></td>
+                    <tbody>
+                        {% for cv in cvs %}
+                        <tr>
+                            <td><strong>{{ cv.original_name }}</strong></td>
+                            <td>{{ cv.uploaded_at.strftime("%Y-%m-%d %H:%M") }}</td>
 
-                                <td>{{ cv.uploaded_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                            <td>
+                                {% if cv.extracted_text %}
+                                    <span class="match">Texto leído</span>
+                                {% else %}
+                                    <span style="color:var(--danger); font-weight:900;">Sin texto</span>
+                                {% endif %}
+                            </td>
 
-                                <td>
-                                    {% if cv.extracted_text %}
-                                        <span class="match">Texto leído</span>
-                                    {% else %}
-                                        <span style="color:var(--danger); font-weight:700;">Sin texto</span>
-                                    {% endif %}
-                                </td>
+                            <td>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <a href="{{ url_for('download', cv_id=cv.id) }}" class="btn btn-secondary">Descargar</a>
+                                    <a href="{{ url_for('delete_cv', cv_id=cv.id) }}" class="btn btn-danger" onclick="return confirm('¿Eliminar este CV?');">
+                                        Eliminar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
 
-                                <td>
-                                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                                        <a href="{{ url_for('download', cv_id=cv.id) }}" class="btn btn-secondary">
-                                            Descargar
-                                        </a>
-
-                                        <a href="{{ url_for('delete_cv', cv_id=cv.id) }}"
-                                           class="btn btn-danger"
-                                           onclick="return confirm('¿Eliminar este CV?');">
-                                            Eliminar
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                </table>
+            </div>
             {% else %}
-                <div style="padding:28px; border:1px dashed var(--border); border-radius:18px; text-align:center;">
-                    <div style="font-size:42px;">📭</div>
-                    <h3>No hay CVs cargados todavía</h3>
-                    <p style="color:var(--muted);">
-                        Sube tus primeros currículums para comenzar el análisis.
-                    </p>
-                </div>
+            <div class="empty-box">
+                <h3>No hay CVs cargados todavía</h3>
+                <p>Sube tus primeros currículums para comenzar el análisis.</p>
+            </div>
             {% endif %}
         </section>
 
     </main>
 </div>
 
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const layout = document.getElementById("dashboard-layout");
+        const toggle = document.getElementById("sidebar-toggle");
+        const input = document.getElementById("cvs");
+        const fileLabel = document.getElementById("file-label");
+
+        if (toggle && layout) {
+            const savedState = localStorage.getItem("ats_sidebar_collapsed");
+
+            if (savedState === "true") {
+                layout.classList.add("collapsed");
+            }
+
+            toggle.addEventListener("click", () => {
+                layout.classList.toggle("collapsed");
+                localStorage.setItem("ats_sidebar_collapsed", layout.classList.contains("collapsed"));
+            });
+        }
+
+        if (input && fileLabel) {
+            input.addEventListener("change", () => {
+                const count = input.files.length;
+
+                if (count === 0) {
+                    fileLabel.innerText = "Selecciona tus CVs en PDF";
+                } else if (count === 1) {
+                    fileLabel.innerText = input.files[0].name;
+                } else {
+                    fileLabel.innerText = `${count} archivos PDF seleccionados`;
+                }
+            });
+        }
+    });
+</script>
 
 </body>
 </html>
