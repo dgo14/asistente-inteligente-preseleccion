@@ -19,6 +19,8 @@
             --success-soft: #dcfce7;
             --danger: #dc2626;
             --danger-soft: #fee2e2;
+            --warning-soft: #fef3c7;
+            --warning: #92400e;
             --shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
         }
 
@@ -28,7 +30,7 @@
 
         body {
             margin: 0;
-            font-family: Inter, system-ui, sans-serif;
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             background: var(--bg);
             color: var(--text);
         }
@@ -375,6 +377,16 @@
             font-size: 13px;
         }
 
+        .badge-success {
+            background: var(--success-soft);
+            color: #166534;
+        }
+
+        .badge-warning {
+            background: var(--warning-soft);
+            color: var(--warning);
+        }
+
         .progress {
             height: 11px;
             background: #e5e7eb;
@@ -397,6 +409,50 @@
             font-weight: 850;
             font-size: 12px;
             margin: 3px;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .profile-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 16px;
+            min-height: 98px;
+        }
+
+        .profile-card span {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+
+        .profile-card strong {
+            font-size: 15px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .candidate-name {
+            font-weight: 950;
+            font-size: 16px;
+            color: #0f172a;
+        }
+
+        .candidate-file {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+            word-break: break-word;
         }
 
         .ai-insight-card {
@@ -437,7 +493,7 @@
         .table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 780px;
+            min-width: 980px;
         }
 
         .table th {
@@ -451,7 +507,7 @@
         .table td {
             padding: 14px;
             border-bottom: 1px solid var(--border);
-            vertical-align: middle;
+            vertical-align: top;
         }
 
         .empty-box {
@@ -498,7 +554,8 @@
                 grid-template-columns: repeat(2, 1fr);
             }
 
-            .kpi-grid {
+            .kpi-grid,
+            .profile-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -556,9 +613,9 @@
                     <span>Ranking</span>
                 </a>
 
-                <a href="#guardados" class="sidebar-link">
+                <a href="#parsing" class="sidebar-link">
                     <span class="nav-icon">☷</span>
-                    <span>CVs guardados</span>
+                    <span>Parsing CVs</span>
                 </a>
 
                 <a href="{{ url_for('export_excel') }}" class="sidebar-link">
@@ -584,7 +641,7 @@
         <header class="topbar">
             <div>
                 <h1>Panel de preselección</h1>
-                <p>Analiza CVs, detecta coincidencias y prioriza candidatos desde un flujo inteligente.</p>
+                <p>Analiza CVs, extrae datos profesionales y prioriza candidatos desde un flujo inteligente.</p>
             </div>
 
             <div class="top-actions">
@@ -605,7 +662,7 @@
             </div>
 
             <div class="kpi">
-                <span>Estado del motor</span>
+                <span>Motor ATS + parsing</span>
                 <strong style="font-size:26px; color:var(--success);">Activo</strong>
             </div>
         </section>
@@ -614,7 +671,7 @@
             <div class="section-head">
                 <div>
                     <h2>Cargar currículums</h2>
-                    <p>Sube uno o varios CVs en PDF para analizarlos dentro del sistema.</p>
+                    <p>Sube uno o varios CVs en PDF. El sistema extrae texto, datos de contacto, skills, roles e idiomas.</p>
                 </div>
 
                 {% if cvs %}
@@ -634,7 +691,7 @@
                     <br>
 
                     <button type="submit" class="btn btn-primary" style="margin-top:18px;">
-                        Subir CVs
+                        Subir y parsear CVs
                     </button>
                 </div>
             </form>
@@ -667,7 +724,11 @@
                 <div>
                     <span class="badge">Candidato recomendado</span>
                     <h2 style="margin-top:14px;">{{ recommended.name }}</h2>
+                    {% if recommended.file_name %}
+                    <p>Archivo analizado: {{ recommended.file_name }}</p>
+                    {% else %}
                     <p>Este candidato obtuvo el mayor score según la descripción del cargo.</p>
+                    {% endif %}
                 </div>
 
                 <div style="text-align:right;">
@@ -698,7 +759,7 @@
         {% if ai_summary %}
         <section class="panel">
             <h2>Análisis inteligente del candidato</h2>
-            <p>Interpretación generada a partir de coincidencias reales detectadas en el CV.</p>
+            <p>Interpretación generada a partir de coincidencias, parsing y similitud semántica.</p>
 
             <div class="ai-insight-card">
                 <div class="ai-insight-header">
@@ -743,7 +804,13 @@
                         {% for r in results %}
                         <tr>
                             <td><strong>#{{ loop.index }}</strong></td>
-                            <td><strong>{{ r.name }}</strong></td>
+
+                            <td>
+                                <div class="candidate-name">{{ r.name }}</div>
+                                {% if r.file_name %}
+                                <div class="candidate-file">{{ r.file_name }}</div>
+                                {% endif %}
+                            </td>
 
                             <td style="min-width:190px;">
                                 <strong>{{ r.score }}%</strong>
@@ -779,54 +846,149 @@
         </section>
         {% endif %}
 
-        <section class="panel" id="guardados">
-            <h2>CVs guardados</h2>
+        <section class="panel" id="parsing">
+            <div class="section-head">
+                <div>
+                    <h2>Parsing profesional de CVs</h2>
+                    <p>Datos estructurados extraídos automáticamente desde cada currículum.</p>
+                </div>
+
+                <a href="{{ url_for('export_excel') }}" class="btn btn-success">Exportar parsing</a>
+            </div>
 
             {% if cvs %}
-            <div class="table-wrap">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Archivo</th>
-                            <th>Fecha de subida</th>
-                            <th>Texto extraído</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for cv in cvs %}
-                        <tr>
-                            <td><strong>{{ cv.original_name }}</strong></td>
-                            <td>{{ cv.uploaded_at.strftime("%Y-%m-%d %H:%M") }}</td>
-
-                            <td>
-                                {% if cv.extracted_text %}
-                                    <span class="match">Texto leído</span>
+                {% for cv in cvs %}
+                <div class="panel" style="box-shadow:none; border-radius:22px; background:#fbfdff; margin-top:18px;">
+                    <div class="section-head">
+                        <div>
+                            <span class="badge">Perfil parseado</span>
+                            <h2 style="margin-top:12px;">
+                                {% if cv.parsed_name %}
+                                    {{ cv.parsed_name }}
                                 {% else %}
-                                    <span style="color:var(--danger); font-weight:900;">Sin texto</span>
+                                    Nombre no detectado
                                 {% endif %}
-                            </td>
+                            </h2>
+                            <p>{{ cv.original_name }}</p>
+                        </div>
 
-                            <td>
-                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                                    <a href="{{ url_for('download', cv_id=cv.id) }}" class="btn btn-secondary">Descargar</a>
-                                    <a href="{{ url_for('delete_cv', cv_id=cv.id) }}" class="btn btn-danger" onclick="return confirm('¿Eliminar este CV?');">
-                                        Eliminar
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <a href="{{ url_for('download', cv_id=cv.id) }}" class="btn btn-secondary">Descargar</a>
+                            <a href="{{ url_for('delete_cv', cv_id=cv.id) }}" class="btn btn-danger" onclick="return confirm('¿Eliminar este CV?');">
+                                Eliminar
+                            </a>
+                        </div>
+                    </div>
 
-                </table>
-            </div>
+                    <div class="profile-grid">
+                        <div class="profile-card">
+                            <span>Email</span>
+                            <strong>
+                                {% if cv.parsed_email %}
+                                    {{ cv.parsed_email }}
+                                {% else %}
+                                    No detectado
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <div class="profile-card">
+                            <span>Teléfono</span>
+                            <strong>
+                                {% if cv.parsed_phone %}
+                                    {{ cv.parsed_phone }}
+                                {% else %}
+                                    No detectado
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <div class="profile-card">
+                            <span>LinkedIn</span>
+                            <strong>
+                                {% if cv.parsed_linkedin %}
+                                    <a href="{{ cv.parsed_linkedin }}" target="_blank" style="color:var(--primary);">Abrir perfil</a>
+                                {% else %}
+                                    No detectado
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <div class="profile-card">
+                            <span>Ubicación</span>
+                            <strong>
+                                {% if cv.parsed_location %}
+                                    {{ cv.parsed_location }}
+                                {% else %}
+                                    No detectada
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <div class="profile-card">
+                            <span>Skills</span>
+                            <strong>
+                                {% if cv.parsed_skills %}
+                                    {{ cv.parsed_skills }}
+                                {% else %}
+                                    No detectadas
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <div class="profile-card">
+                            <span>Certificaciones</span>
+                            <strong>
+                                {% if cv.parsed_certifications %}
+                                    {{ cv.parsed_certifications }}
+                                {% else %}
+                                    No detectadas
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <div class="profile-card">
+                            <span>Idiomas</span>
+                            <strong>
+                                {% if cv.parsed_languages %}
+                                    {{ cv.parsed_languages }}
+                                {% else %}
+                                    No detectados
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <div class="profile-card">
+                            <span>Experiencia explícita</span>
+                            <strong>
+                                {% if cv.parsed_experience and cv.parsed_experience > 0 %}
+                                    {{ cv.parsed_experience }} año(s)
+                                {% else %}
+                                    No detectada
+                                {% endif %}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:18px;">
+                        <span class="badge badge-success">Roles detectados</span>
+                        <div style="margin-top:10px;">
+                            {% if cv.parsed_roles %}
+                                {% for role in cv.parsed_roles.split(',') %}
+                                    <span class="match">{{ role.strip() }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="badge badge-warning">Sin roles detectados</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             {% else %}
-            <div class="empty-box">
-                <h3>No hay CVs cargados todavía</h3>
-                <p>Sube tus primeros currículums para comenzar el análisis.</p>
-            </div>
+                <div class="empty-box">
+                    <h3>No hay CVs cargados todavía</h3>
+                    <p>Sube currículums para ver los datos parseados automáticamente.</p>
+                </div>
             {% endif %}
         </section>
 
