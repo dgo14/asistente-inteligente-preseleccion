@@ -11,6 +11,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from PyPDF2 import PdfReader
 from rapidfuzz import fuzz
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.worksheet.table import Table, TableStyleInfo
@@ -317,6 +319,38 @@ def score_list_overlap(required_terms, cv_text):
 
     return min(score, 1), sorted(set(exact_matches + fuzzy_matches))
 
+def semantic_similarity(job_description, cv_text):
+    """
+    Calcula similitud semántica liviana usando TF-IDF + cosine similarity.
+    Ideal para Raspberry Pi.
+    """
+
+    try:
+        job_norm = normalize_text(job_description)
+        cv_norm = normalize_text(cv_text)
+
+        if not job_norm or not cv_norm:
+            return 0
+
+        documents = [job_norm, cv_norm]
+
+        vectorizer = TfidfVectorizer(
+            stop_words=None,
+            ngram_range=(1, 2)
+        )
+
+        tfidf_matrix = vectorizer.fit_transform(documents)
+
+        similarity = cosine_similarity(
+            tfidf_matrix[0:1],
+            tfidf_matrix[1:2]
+        )[0][0]
+
+        return round(float(similarity), 4)
+
+    except Exception:
+        return 0
+
 
 def infer_required_skill_categories(job_description):
     job_norm = normalize_text(job_description)
@@ -357,6 +391,7 @@ def calculate_candidate_score(job_description, cv_text):
     experience_years = detect_experience_years(cv_text)
 
     keyword_score, keyword_matches = score_list_overlap(keywords, cv_text)
+    semantic_score = semantic_similarity(job_description, cv_text)
 
     if required_skill_categories:
         matched_skill_categories = [
@@ -394,12 +429,13 @@ def calculate_candidate_score(job_description, cv_text):
     experience_score = min(experience_years / 5, 1) if experience_years and experience_requested else 0
 
     final_score = (
-        skill_score * 0.35 +
-        keyword_score * 0.25 +
-        role_score * 0.15 +
+        skill_score * 0.30 +
+        keyword_score * 0.20 +
+        semantic_score * 0.20 +
+        role_score * 0.10 +
         cert_score * 0.10 +
         language_score * 0.05 +
-        experience_score * 0.10
+        experience_score * 0.05
     ) * 100
 
     matches = []
