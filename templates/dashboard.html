@@ -76,9 +76,6 @@
         }
 
         .sidebar-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             margin-bottom: 28px;
         }
 
@@ -176,7 +173,7 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            background: rgba(244, 247, 251, 0.86);
+            background: rgba(244, 247, 251, 0.88);
             backdrop-filter: blur(14px);
             padding: 18px 0 22px;
             display: flex;
@@ -210,7 +207,6 @@
             border-radius: 14px;
             padding: 12px 18px;
             font-weight: 900;
-            text-decoration: none;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -518,6 +514,127 @@
             background: #f8fafc;
         }
 
+        .pipeline-panel {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .pipeline-head {
+            padding: 24px 24px 16px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pipeline-scroll {
+            max-height: 660px;
+            overflow: auto;
+            padding: 18px 24px 24px;
+            background: #f8fafc;
+        }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(6, 260px);
+            gap: 16px;
+            min-width: max-content;
+        }
+
+        .kanban-column {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            min-height: 520px;
+            padding: 12px;
+        }
+
+        .kanban-header {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: #f1f5f9;
+            padding: 10px 8px 12px;
+            color: #0f172a;
+            font-size: 14px;
+            border-bottom: 1px solid #dbe2ea;
+            margin-bottom: 12px;
+        }
+
+        .kanban-header strong {
+            display: block;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+        }
+
+        .kanban-dropzone {
+            min-height: 430px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 6px;
+            border-radius: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .kanban-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 14px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+            cursor: grab;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .kanban-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 35px rgba(15, 23, 42, 0.10);
+        }
+
+        .kanban-card.dragging {
+            opacity: 0.35;
+            transform: rotate(1deg);
+        }
+
+        .kanban-dropzone.drag-over {
+            background: #eef2ff;
+            outline: 2px dashed #2563eb;
+            outline-offset: 3px;
+        }
+
+        .kanban-name {
+            font-weight: 950;
+            color: #0f172a;
+            font-size: 14px;
+            line-height: 1.35;
+        }
+
+        .kanban-file {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--muted);
+            word-break: break-word;
+        }
+
+        .kanban-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .kanban-tags span {
+            background: var(--primary-soft);
+            color: #1e3a8a;
+            padding: 5px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 850;
+        }
+
         @media(max-width: 1050px) {
             .dashboard,
             .dashboard.collapsed {
@@ -568,12 +685,19 @@
             .main {
                 padding: 22px;
             }
+
+            .pipeline-scroll {
+                max-height: 680px;
+            }
         }
 
         @media(max-width: 620px) {
             .nav-group { grid-template-columns: 1fr; }
             .topbar h1 { font-size: 26px; }
             .panel { padding: 20px; }
+            .pipeline-panel { padding: 0; }
+            .pipeline-head { padding: 20px; }
+            .pipeline-scroll { padding: 14px; }
         }
     </style>
 </head>
@@ -583,9 +707,7 @@
 <div class="dashboard" id="dashboard-layout">
 
     <aside class="sidebar">
-        <button class="sidebar-toggle" id="sidebar-toggle" type="button" title="Abrir o cerrar menú">
-            ☰
-        </button>
+        <button class="sidebar-toggle" id="sidebar-toggle" type="button" title="Abrir o cerrar menú">☰</button>
 
         <div class="sidebar-inner">
             <div class="sidebar-header">
@@ -593,40 +715,14 @@
             </div>
 
             <nav class="nav-group">
-                <a href="{{ url_for('dashboard') }}" class="sidebar-link active">
-                    <span class="nav-icon">▣</span>
-                    <span>Dashboard</span>
-                </a>
-
-                <a href="#upload" class="sidebar-link">
-                    <span class="nav-icon">↑</span>
-                    <span>Cargar CVs</span>
-                </a>
-
-                <a href="#analisis" class="sidebar-link">
-                    <span class="nav-icon">◇</span>
-                    <span>Análisis IA</span>
-                </a>
-
-                <a href="#ranking" class="sidebar-link">
-                    <span class="nav-icon">★</span>
-                    <span>Ranking</span>
-                </a>
-
-                <a href="#parsing" class="sidebar-link">
-                    <span class="nav-icon">☷</span>
-                    <span>Parsing CVs</span>
-                </a>
-
-                <a href="{{ url_for('export_excel') }}" class="sidebar-link">
-                    <span class="nav-icon">⇩</span>
-                    <span>Exportar Excel</span>
-                </a>
-
-                <a href="{{ url_for('logout') }}" class="sidebar-link">
-                    <span class="nav-icon">↪</span>
-                    <span>Cerrar sesión</span>
-                </a>
+                <a href="{{ url_for('dashboard') }}" class="sidebar-link active"><span class="nav-icon">▣</span><span>Dashboard</span></a>
+                <a href="#upload" class="sidebar-link"><span class="nav-icon">↑</span><span>Cargar CVs</span></a>
+                <a href="#pipeline" class="sidebar-link"><span class="nav-icon">▤</span><span>Pipeline</span></a>
+                <a href="#analisis" class="sidebar-link"><span class="nav-icon">◇</span><span>Análisis IA</span></a>
+                <a href="#ranking" class="sidebar-link"><span class="nav-icon">★</span><span>Ranking</span></a>
+                <a href="#parsing" class="sidebar-link"><span class="nav-icon">☷</span><span>Parsing CVs</span></a>
+                <a href="{{ url_for('export_excel') }}" class="sidebar-link"><span class="nav-icon">⇩</span><span>Exportar Excel</span></a>
+                <a href="{{ url_for('logout') }}" class="sidebar-link"><span class="nav-icon">↪</span><span>Cerrar sesión</span></a>
             </nav>
 
             <div class="user-card">
@@ -641,7 +737,7 @@
         <header class="topbar">
             <div>
                 <h1>Panel de preselección</h1>
-                <p>Analiza CVs, extrae datos profesionales y prioriza candidatos desde un flujo inteligente.</p>
+                <p>Analiza CVs, extrae datos profesionales, gestiona etapas y prioriza candidatos.</p>
             </div>
 
             <div class="top-actions">
@@ -662,7 +758,7 @@
             </div>
 
             <div class="kpi">
-                <span>Motor ATS + parsing</span>
+                <span>Motor ATS + Pipeline</span>
                 <strong style="font-size:26px; color:var(--success);">Activo</strong>
             </div>
         </section>
@@ -697,6 +793,59 @@
             </form>
         </section>
 
+        <section class="panel pipeline-panel" id="pipeline">
+            <div class="pipeline-head">
+                <h2>Pipeline RRHH</h2>
+                <p>Mueve candidatos entre etapas del proceso de selección. Los cambios se guardan automáticamente.</p>
+            </div>
+
+            <div class="pipeline-scroll">
+                <div class="kanban-board">
+                    {% set stages = ["Postulados", "Preseleccionados", "Entrevista", "Prueba Técnica", "Oferta", "Contratado"] %}
+
+                    {% for stage in stages %}
+                    <div class="kanban-column">
+                        <div class="kanban-header">
+                            <strong>{{ stage }}</strong>
+                        </div>
+
+                        <div class="kanban-dropzone" data-stage="{{ stage }}">
+                            {% for cv in cvs %}
+                                {% if cv.pipeline_stage == stage or (not cv.pipeline_stage and stage == "Postulados") %}
+                                <div class="kanban-card" draggable="true" data-cv-id="{{ cv.id }}">
+                                    <div class="kanban-name">
+                                        {% if cv.parsed_name %}
+                                            {{ cv.parsed_name }}
+                                        {% else %}
+                                            {{ cv.original_name }}
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="kanban-file">{{ cv.original_name }}</div>
+
+                                    <div class="kanban-tags">
+                                        {% if cv.parsed_roles %}
+                                            {% for role in cv.parsed_roles.split(',')[:2] %}
+                                                <span>{{ role.strip() }}</span>
+                                            {% endfor %}
+                                        {% endif %}
+
+                                        {% if cv.parsed_skills %}
+                                            {% for skill in cv.parsed_skills.split(',')[:2] %}
+                                                <span>{{ skill.strip() }}</span>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
         <section class="panel" id="analisis">
             <h2>Describe el cargo</h2>
             <p>
@@ -708,7 +857,7 @@
                 <textarea
                     class="form-control"
                     name="job_description"
-                    placeholder="Ej: Busco técnico en redes con experiencia en Cisco, soporte de usuarios, configuración de routers, VLAN, inglés básico, responsabilidad y trabajo bajo presión..."
+                    placeholder="Ej: Busco técnico en redes con experiencia en Cisco, soporte de usuarios, configuración de routers, VLAN, inglés básico, responsabilidad y trabajo bajo presión."
                     required>{{ job_description }}</textarea>
 
                 <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
@@ -1028,6 +1177,89 @@
                 }
             });
         }
+
+        let draggedCard = null;
+
+        document.addEventListener("dragstart", event => {
+            const card = event.target.closest(".kanban-card");
+            if (!card) return;
+
+            draggedCard = card;
+            card.classList.add("dragging");
+
+            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData("text/plain", card.dataset.cvId);
+        });
+
+        document.addEventListener("dragend", event => {
+            const card = event.target.closest(".kanban-card");
+            if (!card) return;
+
+            card.classList.remove("dragging");
+            draggedCard = null;
+
+            document.querySelectorAll(".kanban-dropzone").forEach(zone => {
+                zone.classList.remove("drag-over");
+            });
+        });
+
+        document.querySelectorAll(".kanban-dropzone").forEach(zone => {
+            zone.addEventListener("dragenter", event => {
+                event.preventDefault();
+                zone.classList.add("drag-over");
+            });
+
+            zone.addEventListener("dragover", event => {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = "move";
+                zone.classList.add("drag-over");
+            });
+
+            zone.addEventListener("dragleave", event => {
+                if (!zone.contains(event.relatedTarget)) {
+                    zone.classList.remove("drag-over");
+                }
+            });
+
+            zone.addEventListener("drop", async event => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                zone.classList.remove("drag-over");
+
+                const cvId = event.dataTransfer.getData("text/plain");
+                const card = draggedCard || document.querySelector(`.kanban-card[data-cv-id="${cvId}"]`);
+                const newStage = zone.dataset.stage;
+
+                if (!card || !cvId || !newStage) return;
+
+                zone.appendChild(card);
+
+                try {
+                    const response = await fetch("/update_pipeline_stage", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            cv_id: cvId,
+                            stage: newStage
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok || !result.success) {
+                        alert("No se pudo actualizar la etapa.");
+                        location.reload();
+                    }
+
+                } catch (error) {
+                    alert("Error de conexión al actualizar etapa.");
+                    location.reload();
+                }
+            });
+        });
     });
 </script>
 
